@@ -7,6 +7,8 @@ import com.smartdesk.ticket.dto.UpdateTicketStatusRequest;
 import com.smartdesk.ticket.dto.AssignTicketRequest;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TicketService {
 
@@ -29,5 +31,12 @@ public interface TicketService {
     TicketResponse assignTicket(
             Long id,
             AssignTicketRequest request
+    );
+
+    Page<TicketResponse> searchTickets(
+            TicketStatus status,
+            TicketPriority priority,
+            String keyword,
+            Pageable pageable
     );
 }

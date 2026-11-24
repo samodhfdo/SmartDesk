@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.smartdesk.ticket.dto.UpdateTicketRequest;
 import com.smartdesk.ticket.dto.AssignTicketRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
@@ -53,4 +57,34 @@ public class TicketController {
 
         return ticketService.assignTicket(id, request);
     }
+
+    @GetMapping("/search")
+    public Page<TicketResponse> searchTickets(
+            @RequestParam(required = false) TicketStatus status,
+            @RequestParam(required = false) TicketPriority priority,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException(
+                    "Page must be >= 0 and size must be between 1 and 100"
+            );
+        }
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+                        .and(Sort.by(Sort.Direction.DESC, "id"))
+        );
+
+        return ticketService.searchTickets(
+                status,
+                priority,
+                keyword,
+                pageable
+        );
+    }
+
 }

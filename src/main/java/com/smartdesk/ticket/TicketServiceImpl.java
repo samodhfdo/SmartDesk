@@ -20,6 +20,10 @@ import com.smartdesk.ticket.dto.AssignTicketRequest;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
 @Service
 @Transactional
 public class TicketServiceImpl implements TicketService {
@@ -141,6 +145,26 @@ public class TicketServiceImpl implements TicketService {
         Ticket updatedTicket = ticketRepository.save(ticket);
 
         return TicketResponse.from(updatedTicket);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TicketResponse> searchTickets(
+            TicketStatus status,
+            TicketPriority priority,
+            String keyword,
+            Pageable pageable) {
+
+        Specification<Ticket> specification =
+                TicketSpecification.hasStatus(status)
+                        .and(TicketSpecification.hasPriority(priority))
+                        .and(TicketSpecification.titleContains(keyword));
+
+        Page<Ticket> tickets =
+                ticketRepository.findAll(specification, pageable);
+
+        return tickets.map(TicketResponse::from);
     }
 
     // HELPER METHOD TO FIND A TICKET

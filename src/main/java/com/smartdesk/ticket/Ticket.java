@@ -69,7 +69,29 @@ public class Ticket {
         updatedAt = Instant.now();
     }
 
+
     public void updateStatus(TicketStatus newStatus) {
+
+        if (newStatus == null) {
+            throw new IllegalArgumentException(
+                    "Ticket status cannot be null"
+            );
+        }
+
+        boolean validTransition = switch (this.status) {
+            case OPEN -> newStatus == TicketStatus.IN_PROGRESS;
+            case IN_PROGRESS -> newStatus == TicketStatus.RESOLVED;
+            case RESOLVED -> newStatus == TicketStatus.CLOSED;
+            case CLOSED -> false;
+        };
+
+        if (!validTransition) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition from "
+                            + this.status + " to " + newStatus
+            );
+        }
+
         this.status = newStatus;
     }
 
